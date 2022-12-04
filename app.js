@@ -209,3 +209,4 @@ function lockLayer(event, index) {
 
 
 randomColors();
+console.log('git hib login test..');
