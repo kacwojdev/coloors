@@ -5,11 +5,18 @@ const sliders = document.querySelectorAll('input[type="range"]');
 const currentHexes = document.querySelectorAll('.color h2');
 const popup = document.querySelector('.copy-container');
 const adjustBtn = document.querySelectorAll('.adjust');
+const lockBtn = document.querySelectorAll('.lock');
 const closeAdjustments = document.querySelectorAll('.close-adjustments');
 const sliderContainers = document.querySelectorAll('.sliders');
 
 let initialColors;
 // add event listeners
+generateBtn.addEventListener('click', randomColors);
+lockBtn.forEach((button, index) => {
+    button.addEventListener('click', (event) => {
+        lockLayer(event, index);
+    })
+})
 sliders.forEach(slider => {
     slider.addEventListener('input', hslControls)
 });
@@ -49,14 +56,19 @@ function generateHex() {
 let randomHex = generateHex();
 
 function randomColors() {
-    //
     initialColors = [];
 
     colorDivs.forEach((div, index) => {
         const hexText = div.children[0];
         const randomColor = generateHex();
 
-        initialColors.push(chroma(randomColor).hex());
+        if(div.classList.contains('locked')) {
+            initialColors.push(hexText.innerText);
+            return;
+        } else {
+            initialColors.push(chroma(randomColor).hex());
+        }
+
         // add color for bg
         div.style.backgroundColor = randomColor;
         hexText.innerText = randomColor;
@@ -76,6 +88,12 @@ function randomColors() {
 
     //reset inputs
     resetInputs();
+
+    // check for btn contrast
+    adjustBtn.forEach((button, index) => {
+        checkTextContrast(initialColors[index], button);
+        checkTextContrast(initialColors[index], lockBtn[index]);
+    })
 }
 
 function checkTextContrast(color, text) {
@@ -175,6 +193,18 @@ function openAdjustmentPanel(index) {
 
 function closeAdjustmentPanel(index) {
     sliderContainers[index].classList.remove('active');
+}
+
+function lockLayer(event, index) {
+    const lockSVG = event.target.children[0];
+    const activeBg = colorDivs[index];
+    activeBg.classList.toggle("locked");
+  
+    if (lockSVG.classList.contains("fa-lock-open")) {
+        event.target.innerHTML = '<i class="fas fa-lock"></i>';
+    } else {
+        event.target.innerHTML = '<i class="fas fa-lock-open"></i>';
+    }
 }
 
 
